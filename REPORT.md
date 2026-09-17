@@ -29,13 +29,16 @@ The audit also showed why network support was not claimed. For eight labelled ne
 
 ## Final deterministic method
 
-The submitted default is `agents.stage1_resource`; the deterministic core is unchanged from the measured Stage 1 run.
+The submitted default is `agents.stage1_resource`. It is the measured Stage 1
+resource method plus process-restart detection and coherent service hierarchy
+promotion.
 
 1. Parse the half-open 30-minute interval in UTC+8 and load eligible container and node resource metrics.
 2. Detect persistent local changes with rolling windows of three and five samples. Score both increases and decreases against daily robust scale, with explicit handling for zero-MAD state changes.
-3. Build a mixed Top-10 candidate set containing exact pods, logical services, and nodes. Service candidates aggregate coherent replica events while preserving the source pod.
+3. Build a mixed Top-10 candidate set containing exact pods, logical services, and nodes. Promote a logical service when at least two replicas show the same KPI direction within 120 seconds; otherwise retain the exact pod ahead of a weak service aggregate.
 4. Convert KPI families into soft resource-reason scores for CPU, memory, disk space, read I/O, and write I/O. These scores are evidence weights, not calibrated probabilities.
-5. Select distinct source components, use the first sustained local transition as occurrence time, validate the exact answer contract, and fall back to B2 if candidates are insufficient or invalid.
+5. For reason-only requests, detect any in-window change in `container_start_time_seconds` and report container process termination for the selected answer.
+6. Select distinct source components, use the first sustained local transition as occurrence time, validate the exact answer contract, and fall back to B2 if candidates are insufficient or invalid.
 
 No labels, logs, traces, mesh telemetry, ReplicaDiff, external API, or LLM are used at inference.
 
@@ -46,11 +49,13 @@ No labels, logs, traces, mesh telemetry, ReplicaDiff, external API, or LLM are u
 | B2 | 0.157 | 4/70 |
 | + rolling change-point | 0.190 | 3/70 |
 | + local onset | 0.239 | 6/70 |
-| + resource-reason scoring (final) | **0.287** | **11/70** |
+| + resource-reason scoring (Stage 1) | 0.287 | 11/70 |
+| + process-restart detection | 0.308 | 13/70 |
+| + coherent service hierarchy (final) | **0.317** | **14/70** |
 
-Against B2, the final method improved 21 cases, regressed 10, and left 39 unchanged. Exact mixed-universe component Recall@1/3/5/10 was 29.2%/52.1%/64.6%/85.4% on 48 labelled incidents. Local-onset accuracy within 60 seconds was 17.0% (8/47). All 70 outputs were non-empty and had the requested failure count.
+Hierarchy promotion over the process-restart version improved rows 14, 20, and 30 and regressed rows 47 and 48. The final component accuracy was 3/20 on service-labelled incidents and 6/10 on pod-labelled incidents. All 70 outputs were non-empty and had the requested failure count.
 
-The final run averaged 1.61 seconds per case, with a 7.93-second maximum. It made zero LLM calls and used zero prompt tokens. The measured model cost is therefore $0.
+The reproduced final run averaged 1.83 seconds per case, with a 7.93-second maximum. It made zero LLM calls and used zero prompt tokens. The measured model cost is therefore $0.
 
 These are internal development results after exploratory audit, not untouched external validation. No thresholds were fitted to labels, but analysis and evaluation used the same development bundle.
 
@@ -62,16 +67,16 @@ For example, development row 0 ranked `shippingservice-1` first, identified a su
 
 ## Runtime and cost design
 
-The deterministic agent is the whole submitted path, not merely an error branch. It is reproducible, made zero model calls in the measured run, and had measured model cost of $0. No routed or single-model result is reported because neither configuration was measured for the protected final agent.
+The deterministic agent is the whole submitted path, not merely an error branch. It is reproducible, made zero model calls in the measured run, and had measured model cost of $0. No runtime LLM or model-routing configuration is enabled or reported.
 
 ## Limitations
 
-- The method is resource-only. It scored 0.000 mean and 0/10 strict on the diagnostic network group, and it has no process-termination detector.
-- `task_7` remained unsolved strictly (0/11), and multi-failure selection is based on ranked distinct sources rather than joint causal reasoning.
-- Candidate selection is imperfect: 10 cases regressed from B2, and the final method's exact Top-5 component recall was 64.6%.
+- Network diagnosis remains weak: the resource-only method scored 0.000 mean and 0/10 strict on the diagnostic network group.
+- `task_7` scored 0.105 mean and remained unsolved strictly (0/11); multi-failure selection is based on ranked distinct sources rather than joint causal reasoning.
+- Candidate selection remains imperfect, including the two hierarchy regressions on rows 47 and 48.
 - Timing remains weak: only 8/47 timed incidents were within 60 seconds.
 - Soft KPI-family mappings can be confounded by correlated victim signals; scores are not calibrated confidence.
-- Development labels are incomplete and repeated windows are not independent. Hidden-set generalization is unverified.
+- These are internal development-set results after exploratory audit, not hidden-set performance. Development labels are incomplete and repeated windows are not independent; hidden-set generalization is unverified.
 - Docker execution was not part of the measured Stage 1 results; container verification remains a release check.
 
 ## AI-use disclosure

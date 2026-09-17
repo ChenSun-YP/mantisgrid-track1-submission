@@ -2,8 +2,9 @@
 
 This submission diagnoses microservice incidents from container and node metrics. It
 uses persistent local change points, mixed pod/service/node candidates, UTC+8 onset
-estimation, resource-reason scoring, and a contract-safe fallback. The shipped default
-agent is `agents.stage1_resource`.
+estimation, resource-reason scoring, process-restart detection, coherent service
+promotion, and a contract-safe fallback. The shipped default agent is
+`agents.stage1_resource`.
 
 ## Measured results
 
@@ -16,7 +17,9 @@ These are development-set measurements, not hidden-evaluation estimates.
 | UTC+8 + contract-safe fallback (B2) | 0.157 | 4/70 | 0 |
 | + rolling change-point ranking | 0.190 | 3/70 | 0 |
 | + local-onset timestamps | 0.239 | 6/70 | 0 |
-| **+ resource-reason scoring (shipped)** | **0.287** | **11/70** | **0** |
+| + resource-reason scoring (Stage 1) | 0.287 | 11/70 | 0 |
+| + process-restart detection | 0.308 | 13/70 | 0 |
+| **+ coherent service hierarchy (final shipped)** | **0.317** | **14/70** | **0** |
 
 ### What each configuration adds
 
@@ -31,14 +34,19 @@ These are development-set measurements, not hidden-evaluation estimates.
   relying only on the largest whole-window anomaly.
 - **Local-onset timestamps:** dates each selected failure at the first sustained
   local transition rather than at the later peak of the affected metric.
-- **Resource-reason scoring — shipped:** combines evidence across related KPI
+- **Resource-reason scoring — Stage 1:** combines evidence across related KPI
   families to select the legal CPU, memory, disk, or I/O reason instead of using a
   single KPI keyword match.
+- **Process-restart detection:** identifies an in-window change in container start
+  time for reason-only requests and reports container process termination.
+- **Coherent service hierarchy — final shipped:** promotes a logical service when
+  at least two replicas show the same KPI direction near the same onset, while a
+  lone affected replica remains an exact-pod candidate.
 
 Each row in the table is cumulative: it adds the named change to the configuration
 above it.
 
-The shipped run averaged **1.61 seconds per case**, peaked at 7.93 seconds,
+The reproduced final run averaged **1.83 seconds per case**, peaked at 7.93 seconds,
 and made **zero model calls**, for measured model cost of **$0**. Candidate-source
 ablation kept the rolling method: fixed-half scored 0.175 and the union scored
 0.281 while taking 3.37 seconds per case. Full tables and limitations are in
@@ -64,24 +72,18 @@ runs followed by offline scoring:
   nonempty fields, legal components/reasons, UTC+8 bounds, and one evidence file per
   query.
 
-### Latest harness extension
+### Release progression
 
 | configuration | mean score | strictly solved | runtime (s/case) | decision |
 |---|---:|---:|---:|---|
-| Protected resource baseline | 0.287 | 11/70 | 1.61 | current public runtime |
-| **Replica-coherent hierarchy** | **0.295** | **12/70** | **1.63** | **promoted in development** |
-| + reason-conditioned onset | 0.295 | 12/70 | 3.15 | not promoted |
-| + distinct multi-event selection | 0.288 | 12/70 | 2.24 | not promoted |
+| Stage 1 resource baseline | 0.287 | 11/70 | 1.61 | superseded |
+| + process-restart detection | 0.308 | 13/70 | 1.59 | superseded |
+| **+ coherent service hierarchy** | **0.317** | **14/70** | **1.83** | **final shipped runtime** |
 
-Hierarchy promotion improved three cases and regressed two. It raised component
-Recall@1 from 29.2% to 31.2%, while Recall@10 remained 85.4%. Reason-conditioned
-onset did not improve the 8/47 within-60-second timing result. Multi-event selection
-reduced the aggregate score and did not strictly solve any of the 26 double-failure
-cases. All four configurations made zero model calls.
-
-The public runtime in this commit remains the protected resource baseline. The
-hierarchy result is reported as the latest promoted development result, not as a
-shipped-runtime claim.
+Against the process-restart version, hierarchy promotion improved rows 14, 20, and
+30 and regressed rows 47 and 48; the strict-solve gate increased from 13 to 14. All
+release configurations made zero model calls. These are internal development-set
+measurements, not hidden-set performance.
 
 ## Architecture
 
@@ -92,8 +94,11 @@ flowchart LR
     T --> C[Persistent local change detection]
     L --> C
     C --> R[Rank mixed pod, service, and node candidates]
-    R --> O[Estimate first sustained local onset]
+    R --> H[Promote replica-coherent services]
+    H --> O[Estimate first sustained local onset]
     R --> K[Score legal resource reasons from KPI families]
+    D --> S[Detect container process restarts]
+    S --> V
     O --> V[Validate count, component, reason, and field order]
     K --> V
     V -->|valid| P[predictions.csv]
