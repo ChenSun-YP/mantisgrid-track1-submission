@@ -44,6 +44,45 @@ ablation kept the rolling method: fixed-half scored 0.175 and the union scored
 0.281 while taking 3.37 seconds per case. Full tables and limitations are in
 [`REPORT.md`](REPORT.md) and [`eval/`](eval/).
 
+## Evaluation harness
+
+The harness is organized as a sequence of controlled, label-independent inference
+runs followed by offline scoring:
+
+- **Stage 0 contract audit:** isolates the UTC+8 repair and contract-safe fallback
+  from the original B0 heuristic.
+- **Stage 1 algorithm ablation:** adds rolling change-point ranking, local-onset
+  timing, and resource-reason scoring one change at a time.
+- **Candidate-source ablation:** compares rolling, fixed-half, and union candidate
+  generators without changing the output contract.
+- **Hierarchy and multi-failure ablation:** tests replica-coherent service promotion,
+  reason-conditioned onset, and distinct-event selection.
+- **Diagnostic scoring:** reports official score, strict solves, component
+  Recall@1/3/5/10, 60-second timing accuracy, reason accuracy, task and fault-group
+  results, failure-count slices, per-case changes, runtime, and model calls.
+- **Release gates:** check unique row IDs, requested failure count, ordered and
+  nonempty fields, legal components/reasons, UTC+8 bounds, and one evidence file per
+  query.
+
+### Latest harness extension
+
+| configuration | mean score | strictly solved | runtime (s/case) | decision |
+|---|---:|---:|---:|---|
+| Protected resource baseline | 0.287 | 11/70 | 1.61 | current public runtime |
+| **Replica-coherent hierarchy** | **0.295** | **12/70** | **1.63** | **promoted in development** |
+| + reason-conditioned onset | 0.295 | 12/70 | 3.15 | not promoted |
+| + distinct multi-event selection | 0.288 | 12/70 | 2.24 | not promoted |
+
+Hierarchy promotion improved three cases and regressed two. It raised component
+Recall@1 from 29.2% to 31.2%, while Recall@10 remained 85.4%. Reason-conditioned
+onset did not improve the 8/47 within-60-second timing result. Multi-event selection
+reduced the aggregate score and did not strictly solve any of the 26 double-failure
+cases. All four configurations made zero model calls.
+
+The public runtime in this commit remains the protected resource baseline. The
+hierarchy result is reported as the latest promoted development result, not as a
+shipped-runtime claim.
+
 ## Architecture
 
 ```mermaid
