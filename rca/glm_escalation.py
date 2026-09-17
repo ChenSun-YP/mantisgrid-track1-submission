@@ -179,9 +179,12 @@ def call_glm(hypotheses: list[dict], evidence: list[dict], required_count: int) 
         raise RuntimeError("FEATHERLESS_API_KEY is not set")
     base_url = os.getenv("FEATHERLESS_BASE_URL", "https://api.featherless.ai/v1").rstrip("/")
     timeout = _float_env("GLM_TIMEOUT_SECONDS", 30.0)
-    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    headers = {"Authorization": f"Bearer {api_key}",
+               "Content-Type": "application/json",
+               "User-Agent": "MantisGrid-Track1/1.0"}
     model = _choose_model(base_url, headers, timeout)
-    payload = {"model": model, "temperature": 0, "max_tokens": 300,
+    payload = {"model": model, "temperature": 0,
+               "max_tokens": int(_float_env("GLM_MAX_TOKENS", 1024)),
                "messages": [{"role": "system", "content": SYSTEM_PROMPT},
                             {"role": "user", "content": json.dumps({
                                 "required_hypothesis_count": required_count,

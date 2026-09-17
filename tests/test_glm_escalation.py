@@ -87,6 +87,9 @@ class GlmEscalationTest(unittest.TestCase):
         self.assertEqual(request.call_count, 2)
         self.assertIsNone(request.call_args_list[0].args[2])
         self.assertIsNotNone(request.call_args_list[1].args[2])
+        self.assertEqual(request.call_args_list[1].args[1]["User-Agent"],
+                         "MantisGrid-Track1/1.0")
+        self.assertEqual(request.call_args_list[1].args[2]["max_tokens"], 1024)
 
     def test_valid_selection_uses_only_precomputed_answer_fields(self):
         hypotheses, evidence = g.build_hypotheses([candidate()])
