@@ -1,0 +1,53 @@
+version,display_name,grouping,group,n,mean_score,strict_solved,strict_rate
+B2,B2,overall,all,70,0.15714285714285714,4,0.05714285714285714
+B2,B2,task,task_1,12,0.16666666666666666,1,0.08333333333333333
+B2,B2,task,task_2,10,0.15,1,0.1
+B2,B2,task,task_3,8,0.0,0,0.0
+B2,B2,task,task_4,7,0.10714285714285714,0,0.0
+B2,B2,task,task_5,10,0.175,0,0.0
+B2,B2,task,task_6,12,0.25,2,0.16666666666666666
+B2,B2,task,task_7,11,0.18181818181818182,0,0.0
+B2,B2,fault_group,container_non_network,15,0.25533333333333336,2,0.13333333333333333
+B2,B2,fault_group,mixed,12,0.18083333333333332,0,0.0
+B2,B2,fault_group,network,10,0.133,1,0.1
+B2,B2,fault_group,node,20,0.1085,0,0.0
+B2,B2,fault_group,unknown,13,0.11538461538461539,1,0.07692307692307693
+change_point,B2 + rolling change-point,overall,all,70,0.19042857142857142,3,0.04285714285714286
+change_point,B2 + rolling change-point,task,task_1,12,0.08333333333333333,0,0.0
+change_point,B2 + rolling change-point,task,task_2,10,0.1,0,0.0
+change_point,B2 + rolling change-point,task,task_3,8,0.1875,1,0.125
+change_point,B2 + rolling change-point,task,task_4,7,0.14285714285714285,0,0.0
+change_point,B2 + rolling change-point,task,task_5,10,0.2,0,0.0
+change_point,B2 + rolling change-point,task,task_6,12,0.4166666666666667,2,0.16666666666666666
+change_point,B2 + rolling change-point,task,task_7,11,0.16636363636363638,0,0.0
+change_point,B2 + rolling change-point,fault_group,container_non_network,15,0.3333333333333333,1,0.06666666666666667
+change_point,B2 + rolling change-point,fault_group,mixed,12,0.17333333333333334,0,0.0
+change_point,B2 + rolling change-point,fault_group,network,10,0.0,0,0.0
+change_point,B2 + rolling change-point,fault_group,node,20,0.2875,2,0.1
+change_point,B2 + rolling change-point,fault_group,unknown,13,0.038461538461538464,0,0.0
+onset,B2 + rolling change-point + onset,overall,all,70,0.23914285714285718,6,0.08571428571428572
+onset,B2 + rolling change-point + onset,task,task_1,12,0.2916666666666667,2,0.16666666666666666
+onset,B2 + rolling change-point + onset,task,task_2,10,0.1,0,0.0
+onset,B2 + rolling change-point + onset,task,task_3,8,0.1875,1,0.125
+onset,B2 + rolling change-point + onset,task,task_4,7,0.25,0,0.0
+onset,B2 + rolling change-point + onset,task,task_5,10,0.25,1,0.1
+onset,B2 + rolling change-point + onset,task,task_6,12,0.4166666666666667,2,0.16666666666666666
+onset,B2 + rolling change-point + onset,task,task_7,11,0.13545454545454547,0,0.0
+onset,B2 + rolling change-point + onset,fault_group,container_non_network,15,0.366,1,0.06666666666666667
+onset,B2 + rolling change-point + onset,fault_group,mixed,12,0.20833333333333334,0,0.0
+onset,B2 + rolling change-point + onset,fault_group,network,10,0.0,0,0.0
+onset,B2 + rolling change-point + onset,fault_group,node,20,0.3125,3,0.15
+onset,B2 + rolling change-point + onset,fault_group,unknown,13,0.19230769230769232,2,0.15384615384615385
+resource_reason,B2 + rolling change-point + onset + resource reason scoring,overall,all,70,0.2868571428571428,11,0.15714285714285714
+resource_reason,B2 + rolling change-point + onset + resource reason scoring,task,task_1,12,0.2916666666666667,2,0.16666666666666666
+resource_reason,B2 + rolling change-point + onset + resource reason scoring,task,task_2,10,0.2,1,0.1
+resource_reason,B2 + rolling change-point + onset + resource reason scoring,task,task_3,8,0.1875,1,0.125
+resource_reason,B2 + rolling change-point + onset + resource reason scoring,task,task_4,7,0.42857142857142855,2,0.2857142857142857
+resource_reason,B2 + rolling change-point + onset + resource reason scoring,task,task_5,10,0.25,1,0.1
+resource_reason,B2 + rolling change-point + onset + resource reason scoring,task,task_6,12,0.5208333333333334,4,0.3333333333333333
+resource_reason,B2 + rolling change-point + onset + resource reason scoring,task,task_7,11,0.12090909090909091,0,0.0
+resource_reason,B2 + rolling change-point + onset + resource reason scoring,fault_group,container_non_network,15,0.4553333333333333,4,0.26666666666666666
+resource_reason,B2 + rolling change-point + onset + resource reason scoring,fault_group,mixed,12,0.2708333333333333,0,0.0
+resource_reason,B2 + rolling change-point + onset + resource reason scoring,fault_group,network,10,0.0,0,0.0
+resource_reason,B2 + rolling change-point + onset + resource reason scoring,fault_group,node,20,0.375,5,0.25
+resource_reason,B2 + rolling change-point + onset + resource reason scoring,fault_group,unknown,13,0.19230769230769232,2,0.15384615384615385

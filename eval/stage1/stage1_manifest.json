@@ -1,0 +1,16 @@
+{
+  "B2_snapshot_sha256": "f4dfdb19cb858d3b655e899458cbce1391ce8095ae6749a4954f6f6ba0ca0e35",
+  "B2_live_sha256": "f4dfdb19cb858d3b655e899458cbce1391ce8095ae6749a4954f6f6ba0ca0e35",
+  "official_scorer_sha256": "b62dbe060b200a155d66c5beca7da7a981b006f03bb594e3b1e2bde71ca91c0a",
+  "query_sha256": "9c4a0085b115fc9ad396125ee50918ca3f0ba7ed96eb6e52bdc9851e64b5167b",
+  "query_rows": 70,
+  "llm_calls": 0,
+  "cold_resource_profile": {
+    "scope": "cold process, first query only",
+    "row_id": 0,
+    "wall_seconds": 7.7,
+    "ru_maxrss_bytes": 1064812544,
+    "cpu_limit_assumption": "single Python process; no explicit worker pool",
+    "gpu_used": false
+  }
+}

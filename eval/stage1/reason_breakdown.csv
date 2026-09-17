@@ -1,0 +1,121 @@
+version,evaluation_unit,reason,fault_group,n,correct,accuracy
+B2,merged_incident,container CPU load,container_non_network,7,6,0.8571428571428571
+B2,merged_incident,container memory load,container_non_network,5,0,0.0
+B2,merged_incident,container network latency,network,3,2,0.6666666666666666
+B2,merged_incident,container network packet corruption,network,3,0,0.0
+B2,merged_incident,container network packet retransmission,network,5,0,0.0
+B2,merged_incident,container packet loss,network,1,0,0.0
+B2,merged_incident,container process termination,container_non_network,3,0,0.0
+B2,merged_incident,container read I/O load,container_non_network,5,0,0.0
+B2,merged_incident,container write I/O load,container_non_network,1,0,0.0
+B2,merged_incident,node CPU load,node,3,1,0.3333333333333333
+B2,merged_incident,node CPU spike,node,1,0,0.0
+B2,merged_incident,node disk read I/O consumption,node,3,0,0.0
+B2,merged_incident,node disk space consumption,node,4,0,0.0
+B2,merged_incident,node disk write I/O consumption,node,2,0,0.0
+B2,merged_incident,node memory consumption,node,3,0,0.0
+change_point,merged_incident,container CPU load,container_non_network,7,5,0.7142857142857143
+change_point,merged_incident,container memory load,container_non_network,5,2,0.4
+change_point,merged_incident,container network latency,network,3,0,0.0
+change_point,merged_incident,container network packet corruption,network,3,0,0.0
+change_point,merged_incident,container network packet retransmission,network,5,0,0.0
+change_point,merged_incident,container packet loss,network,1,0,0.0
+change_point,merged_incident,container process termination,container_non_network,3,0,0.0
+change_point,merged_incident,container read I/O load,container_non_network,5,0,0.0
+change_point,merged_incident,container write I/O load,container_non_network,1,0,0.0
+change_point,merged_incident,node CPU load,node,3,3,1.0
+change_point,merged_incident,node CPU spike,node,1,0,0.0
+change_point,merged_incident,node disk read I/O consumption,node,3,0,0.0
+change_point,merged_incident,node disk space consumption,node,4,0,0.0
+change_point,merged_incident,node disk write I/O consumption,node,2,0,0.0
+change_point,merged_incident,node memory consumption,node,3,0,0.0
+onset,merged_incident,container CPU load,container_non_network,7,5,0.7142857142857143
+onset,merged_incident,container memory load,container_non_network,5,2,0.4
+onset,merged_incident,container network latency,network,3,0,0.0
+onset,merged_incident,container network packet corruption,network,3,0,0.0
+onset,merged_incident,container network packet retransmission,network,5,0,0.0
+onset,merged_incident,container packet loss,network,1,0,0.0
+onset,merged_incident,container process termination,container_non_network,3,0,0.0
+onset,merged_incident,container read I/O load,container_non_network,5,0,0.0
+onset,merged_incident,container write I/O load,container_non_network,1,0,0.0
+onset,merged_incident,node CPU load,node,3,3,1.0
+onset,merged_incident,node CPU spike,node,1,0,0.0
+onset,merged_incident,node disk read I/O consumption,node,3,0,0.0
+onset,merged_incident,node disk space consumption,node,4,0,0.0
+onset,merged_incident,node disk write I/O consumption,node,2,0,0.0
+onset,merged_incident,node memory consumption,node,3,0,0.0
+resource_reason,merged_incident,container CPU load,container_non_network,7,4,0.5714285714285714
+resource_reason,merged_incident,container memory load,container_non_network,5,1,0.2
+resource_reason,merged_incident,container network latency,network,3,0,0.0
+resource_reason,merged_incident,container network packet corruption,network,3,0,0.0
+resource_reason,merged_incident,container network packet retransmission,network,5,0,0.0
+resource_reason,merged_incident,container packet loss,network,1,0,0.0
+resource_reason,merged_incident,container process termination,container_non_network,3,0,0.0
+resource_reason,merged_incident,container read I/O load,container_non_network,5,4,0.8
+resource_reason,merged_incident,container write I/O load,container_non_network,1,0,0.0
+resource_reason,merged_incident,node CPU load,node,3,3,1.0
+resource_reason,merged_incident,node CPU spike,node,1,0,0.0
+resource_reason,merged_incident,node disk read I/O consumption,node,3,2,0.6666666666666666
+resource_reason,merged_incident,node disk space consumption,node,4,0,0.0
+resource_reason,merged_incident,node disk write I/O consumption,node,2,0,0.0
+resource_reason,merged_incident,node memory consumption,node,3,2,0.6666666666666666
+B2,official_scored_instance,container CPU load,container_non_network,8,7,0.875
+B2,official_scored_instance,container memory load,container_non_network,5,0,0.0
+B2,official_scored_instance,container network latency,network,5,4,0.8
+B2,official_scored_instance,container network packet corruption,network,3,0,0.0
+B2,official_scored_instance,container network packet retransmission,network,5,0,0.0
+B2,official_scored_instance,container packet loss,network,1,0,0.0
+B2,official_scored_instance,container process termination,container_non_network,3,0,0.0
+B2,official_scored_instance,container read I/O load,container_non_network,6,0,0.0
+B2,official_scored_instance,container write I/O load,container_non_network,2,0,0.0
+B2,official_scored_instance,node CPU load,node,3,1,0.3333333333333333
+B2,official_scored_instance,node CPU spike,node,1,0,0.0
+B2,official_scored_instance,node disk read I/O consumption,node,4,0,0.0
+B2,official_scored_instance,node disk space consumption,node,4,0,0.0
+B2,official_scored_instance,node disk write I/O consumption,node,2,0,0.0
+B2,official_scored_instance,node memory consumption,node,3,0,0.0
+change_point,official_scored_instance,container CPU load,container_non_network,8,5,0.625
+change_point,official_scored_instance,container memory load,container_non_network,5,2,0.4
+change_point,official_scored_instance,container network latency,network,5,0,0.0
+change_point,official_scored_instance,container network packet corruption,network,3,0,0.0
+change_point,official_scored_instance,container network packet retransmission,network,5,0,0.0
+change_point,official_scored_instance,container packet loss,network,1,0,0.0
+change_point,official_scored_instance,container process termination,container_non_network,3,0,0.0
+change_point,official_scored_instance,container read I/O load,container_non_network,6,0,0.0
+change_point,official_scored_instance,container write I/O load,container_non_network,2,0,0.0
+change_point,official_scored_instance,node CPU load,node,3,3,1.0
+change_point,official_scored_instance,node CPU spike,node,1,0,0.0
+change_point,official_scored_instance,node disk read I/O consumption,node,4,0,0.0
+change_point,official_scored_instance,node disk space consumption,node,4,0,0.0
+change_point,official_scored_instance,node disk write I/O consumption,node,2,0,0.0
+change_point,official_scored_instance,node memory consumption,node,3,0,0.0
+onset,official_scored_instance,container CPU load,container_non_network,8,5,0.625
+onset,official_scored_instance,container memory load,container_non_network,5,2,0.4
+onset,official_scored_instance,container network latency,network,5,0,0.0
+onset,official_scored_instance,container network packet corruption,network,3,0,0.0
+onset,official_scored_instance,container network packet retransmission,network,5,0,0.0
+onset,official_scored_instance,container packet loss,network,1,0,0.0
+onset,official_scored_instance,container process termination,container_non_network,3,0,0.0
+onset,official_scored_instance,container read I/O load,container_non_network,6,0,0.0
+onset,official_scored_instance,container write I/O load,container_non_network,2,0,0.0
+onset,official_scored_instance,node CPU load,node,3,3,1.0
+onset,official_scored_instance,node CPU spike,node,1,0,0.0
+onset,official_scored_instance,node disk read I/O consumption,node,4,0,0.0
+onset,official_scored_instance,node disk space consumption,node,4,0,0.0
+onset,official_scored_instance,node disk write I/O consumption,node,2,0,0.0
+onset,official_scored_instance,node memory consumption,node,3,0,0.0
+resource_reason,official_scored_instance,container CPU load,container_non_network,8,4,0.5
+resource_reason,official_scored_instance,container memory load,container_non_network,5,1,0.2
+resource_reason,official_scored_instance,container network latency,network,5,0,0.0
+resource_reason,official_scored_instance,container network packet corruption,network,3,0,0.0
+resource_reason,official_scored_instance,container network packet retransmission,network,5,0,0.0
+resource_reason,official_scored_instance,container packet loss,network,1,0,0.0
+resource_reason,official_scored_instance,container process termination,container_non_network,3,0,0.0
+resource_reason,official_scored_instance,container read I/O load,container_non_network,6,4,0.6666666666666666
+resource_reason,official_scored_instance,container write I/O load,container_non_network,2,0,0.0
+resource_reason,official_scored_instance,node CPU load,node,3,3,1.0
+resource_reason,official_scored_instance,node CPU spike,node,1,0,0.0
+resource_reason,official_scored_instance,node disk read I/O consumption,node,4,3,0.75
+resource_reason,official_scored_instance,node disk space consumption,node,4,0,0.0
+resource_reason,official_scored_instance,node disk write I/O consumption,node,2,0,0.0
+resource_reason,official_scored_instance,node memory consumption,node,3,2,0.6666666666666666

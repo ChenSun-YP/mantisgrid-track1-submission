@@ -1,0 +1,8 @@
+{
+  "scope": "cold process, first query only",
+  "row_id": 0,
+  "wall_seconds": 7.7,
+  "ru_maxrss_bytes": 1064812544,
+  "cpu_limit_assumption": "single Python process; no explicit worker pool",
+  "gpu_used": false
+}
