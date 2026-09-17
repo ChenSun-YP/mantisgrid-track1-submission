@@ -5,6 +5,50 @@ uses persistent local change points, mixed pod/service/node candidates, UTC+8 on
 estimation, resource-reason scoring, and a contract-safe fallback. The shipped default
 agent is `agents.stage1_resource`.
 
+## Measured results
+
+The table below uses the unchanged official scorer on all 70 development cases.
+These are development-set measurements, not hidden-evaluation estimates.
+
+| configuration | mean score | strictly solved | empty answers |
+|---|---:|---:|---:|
+| Original heuristic (B0) | 0.073 | 2/70 | 24 |
+| UTC+8 + contract-safe fallback (B2) | 0.157 | 4/70 | 0 |
+| + rolling change-point ranking | 0.190 | 3/70 | 0 |
+| + local-onset timestamps | 0.239 | 6/70 | 0 |
+| **+ resource-reason scoring (shipped)** | **0.287** | **11/70** | **0** |
+
+The shipped run averaged **1.61 seconds per case**, peaked at 7.93 seconds,
+and made **zero model calls**, for measured model cost of **$0**. Candidate-source
+ablation kept the rolling method: fixed-half scored 0.175 and the union scored
+0.281 while taking 3.37 seconds per case. Full tables and limitations are in
+[`REPORT.md`](REPORT.md) and [`eval/`](eval/).
+
+## Architecture
+
+```mermaid
+flowchart LR
+    Q[query.csv instruction] --> T[Parse half-open window in UTC+8]
+    D[Container and node metrics] --> L[Load eligible daily series]
+    T --> C[Persistent local change detection]
+    L --> C
+    C --> R[Rank mixed pod, service, and node candidates]
+    R --> O[Estimate first sustained local onset]
+    R --> K[Score legal resource reasons from KPI families]
+    O --> V[Validate count, component, reason, and field order]
+    K --> V
+    V -->|valid| P[predictions.csv]
+    V -->|insufficient or invalid| F[Contract-safe B2 fallback]
+    F --> P
+    R --> E[evidence/row_id.md]
+    P --> U[usage.jsonl: zero model calls]
+```
+
+The inference path reads only the supplied query instruction and telemetry. It
+does not read development labels, answer files, evaluation artifacts, logs,
+traces, or mesh data. The resource-only scope is deliberate and explains the
+measured weakness on network failures.
+
 ## Run
 
 ```bash
