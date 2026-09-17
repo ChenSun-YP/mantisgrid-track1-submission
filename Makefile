@@ -8,5 +8,5 @@ test:
 validate: test
 	@test -n "$(DATASET)" || (echo "DATASET is required" >&2; exit 2)
 	@test -n "$(QUERIES)" || (echo "QUERIES is required" >&2; exit 2)
-	VAL_AGENT=agents.stage1_resource $(PY) scripts/validate_submission.py \
+	VAL_AGENT=agents.glm_escalation $(PY) scripts/validate_submission.py \
 		--submission . --dataset "$(DATASET)" --queries "$(QUERIES)"

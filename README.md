@@ -4,7 +4,8 @@ This submission diagnoses microservice incidents from container and node metrics
 uses persistent local change points, mixed pod/service/node candidates, UTC+8 onset
 estimation, resource-reason scoring, process-restart detection, coherent service
 promotion, and a contract-safe fallback. The shipped default agent is
-`agents.stage1_resource`.
+`agents.glm_escalation`, which ambiguity-routes to one GLM call when credentials
+are available and otherwise retains the deterministic answer unchanged.
 
 ## Measured results
 
@@ -19,7 +20,7 @@ These are development-set measurements, not hidden-evaluation estimates.
 | + local-onset timestamps | 0.239 | 6/70 | 0 |
 | + resource-reason scoring (Stage 1) | 0.287 | 11/70 | 0 |
 | + process-restart detection | 0.308 | 13/70 | 0 |
-| **+ coherent service hierarchy (final shipped)** | **0.317** | **14/70** | **0** |
+| **+ coherent service hierarchy (locked deterministic baseline)** | **0.317** | **14/70** | **0** |
 
 ### What each configuration adds
 
@@ -78,7 +79,7 @@ runs followed by offline scoring:
 |---|---:|---:|---:|---|
 | Stage 1 resource baseline | 0.287 | 11/70 | 1.61 | superseded |
 | + process-restart detection | 0.308 | 13/70 | 1.59 | superseded |
-| **+ coherent service hierarchy** | **0.317** | **14/70** | **1.83** | **final shipped runtime** |
+| **+ coherent service hierarchy** | **0.317** | **14/70** | **1.83** | **locked deterministic baseline** |
 
 Against the process-restart version, hierarchy promotion improved rows 14, 20, and
 30 and regressed rows 47 and 48; the strict-solve gate increased from 13 to 14. All
@@ -105,7 +106,23 @@ flowchart LR
     V -->|insufficient or invalid| F[Contract-safe B2 fallback]
     F --> P
     R --> E[evidence/row_id.md]
-    P --> U[usage.jsonl: zero model calls]
+    P --> U[usage.jsonl: zero or one routed GLM call]
+
+    subgraph ROUTED[Default ambiguity-routing layer - not yet accuracy measured]
+        R -.-> GH[Build structured Top-5 hypotheses]
+        GH --> AG{Ambiguity gate}
+        AG -->|not ambiguous| DF[Keep deterministic answer]
+        AG -->|ambiguous| G[One GLM adjudication call]
+        G --> GV[Validate supplied IDs and failure count]
+        GV -->|valid| GS[Select precomputed component, reason, and onset]
+        GV -->|any failure| DF
+    end
+    GS -.-> P
+    DF -.-> P
+    G -.-> GE[Append GLM adjudication evidence]
+    GE -.-> E
+
+    style ROUTED stroke-dasharray: 5 5
 ```
 
 The inference path reads only the supplied query instruction and telemetry. It
@@ -113,7 +130,7 @@ does not read development labels, answer files, evaluation artifacts, logs,
 traces, or mesh data. The resource-only scope is deliberate and explains the
 measured weakness on network failures.
 
-The final deterministic architecture is:
+The deterministic fallback architecture is:
 
 `query → UTC+8 window parsing → rolling persistent change detection → mixed
 pod/service/node candidates → process-restart detection → hierarchy promotion →
@@ -151,34 +168,35 @@ make validate DATASET=/path/to/Market-cloudbed-1 \
 
 ## Shipped agent
 
-The final runtime is deterministic and metric-only. It does not read labels,
+The default runtime is `agents.glm_escalation`. Its deterministic foundation does
+not read labels,
 `scoring_points`, development answers, logs, traces, mesh data, or evaluation
-artifacts. It makes no model or external API calls. Consequently,
-`FEATHERLESS_API_KEY` and `FEATHERLESS_BASE_URL` are accepted by the container
-environment but are not consumed by this configuration. Runtime models are not
-enabled.
+artifacts. When the structured evidence is ambiguous and credentials are available,
+the routing layer may make one adjudication call; any missing credential, API/model
+failure, timeout, invalid selection, or contract failure retains the exact
+deterministic answer.
 
 Measured development results and limitations are documented in [REPORT.md](REPORT.md),
 with compact supporting artifacts under `eval/`.
 
-## Optional GLM escalation
+## Default GLM escalation
 
-`agents.glm_escalation` is an opt-in ambiguity adjudicator and is **not** the
-default or measured configuration. It sends at most five structured, precomputed
+`agents.glm_escalation` is the default ambiguity adjudicator. It sends at most five
+structured, precomputed
 hypotheses and their evidence IDs to at most one GLM completion, validates that
 the response selects known hypothesis IDs with the required failure count, and
 retains the exact deterministic answer on any missing credential, API error,
 timeout, malformed response, or contract failure. It never asks the model to
 generate components, reasons, timestamps, KPIs, or telemetry values.
 
-The optional agent prefers `zai-org/GLM-5.2` and selects
+The routed agent prefers `zai-org/GLM-5.2` and selects
 `zai-org/GLM-5.1` only when the model catalog shows that the primary is
 unavailable. It has not received a final accuracy evaluation, so no GLM score or
-promotion claim is made.
+promotion claim is made. The reported 0.317/14 result remains the locked
+deterministic fallback measurement.
 
 ```bash
-python run.py --agent agents.glm_escalation \
-  --dataset /data --queries /data/query.csv --out /out
+python run.py --dataset /data --queries /data/query.csv --out /out
 ```
 
 Container execution was not locally verified because no runtime is installed.
@@ -187,5 +205,5 @@ Container execution was not locally verified because no runtime is installed.
 
 OpenAI Codex/ChatGPT assisted with telemetry analysis, deterministic implementation,
 testing, evaluation scripts, and documentation. The team selected the final method and
-validated the reported measurements with the provided official scorer. No AI model is
-called by the measured default runtime.
+validated the reported measurements with the provided official scorer. No AI model was
+called in the locked deterministic measurement.

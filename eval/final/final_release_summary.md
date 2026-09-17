@@ -12,5 +12,6 @@ Protected algorithm tag: `final-0317-14`
 - Submission validation: passed
 
 These are internal development-set measurements, not hidden-evaluation results.
-The optional GLM escalation agent was not accuracy-evaluated and is not the
-default runtime.
+The GLM escalation agent is now the default wrapper but has not been accuracy-
+evaluated across the final harness. The figures above describe its deterministic
+fallback.

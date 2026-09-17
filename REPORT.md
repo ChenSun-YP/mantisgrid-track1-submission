@@ -29,9 +29,9 @@ The audit also showed why network support was not claimed. For eight labelled ne
 
 ## Final deterministic method
 
-The submitted default is `agents.stage1_resource`. It is the measured Stage 1
-resource method plus process-restart detection and coherent service hierarchy
-promotion.
+The locked deterministic foundation is `agents.stage1_resource`. It is the measured
+Stage 1 resource method plus process-restart detection and coherent service hierarchy
+promotion. The submitted default wrapper is `agents.glm_escalation`.
 
 1. Parse the half-open 30-minute interval in UTC+8 and load eligible container and node resource metrics.
 2. Detect persistent local changes with rolling windows of three and five samples. Score both increases and decreases against daily robust scale, with explicit handling for zero-MAD state changes.
@@ -72,7 +72,7 @@ For example, development row 0 ranked `shippingservice-1` first, identified a su
 
 ## Runtime and cost design
 
-The deterministic agent is the whole default path, not merely an error branch. It is reproducible, made zero model calls in the measured run, and had measured model cost of $0. No LLM or model-routing configuration is enabled in the default runtime.
+The deterministic agent is the measured fallback path, not merely an error branch. It is reproducible, made zero model calls in the measured run, and had measured model cost of $0. The default wrapper now enables ambiguity routing when credentials are available, but its accuracy has not been measured across the final harness.
 
 ## Negative ablations
 
@@ -83,9 +83,9 @@ held the result at 0.295/12 while raising runtime to 3.15 seconds per case, and
 distinct multi-event selection reduced mean score to 0.288 without adding a strict
 solve. These negative results were not promoted.
 
-## Optional GLM-routing design
+## Default GLM-routing design
 
-An optional `agents.glm_escalation` module wraps, but does not modify, the
+The default `agents.glm_escalation` module wraps, but does not modify, the
 deterministic solver and always preserves its answer as the fallback. It constructs
 at most five structured hypotheses from cached deterministic candidate data and
 applies configurable score/reason/hierarchy/
@@ -93,9 +93,9 @@ multi-event ambiguity checks, and makes at most one adjudication completion. The
 model may select only supplied hypothesis and evidence IDs; all answer fields come
 from the selected precomputed hypothesis. Strict validation or any missing key,
 API failure, timeout, malformed JSON, unknown ID, or wrong count returns the exact
-deterministic prediction. The optional path is neither enabled by default nor
-accuracy-evaluated on the final harness. The measured default therefore remains
-deterministic at 0.317 mean and 14/70 strict with zero LLM calls.
+deterministic prediction. The routed path has not been accuracy-evaluated on the
+final harness. The only full measured result therefore remains the deterministic
+fallback at 0.317 mean and 14/70 strict with zero LLM calls.
 
 ## Limitations
 
@@ -110,7 +110,7 @@ deterministic at 0.317 mean and 14/70 strict with zero LLM calls.
 
 ## AI-use disclosure
 
-OpenAI Codex/ChatGPT assisted with analysis, coding, testing, evaluation tooling, and documentation. The measured default runtime does not call an AI model. All reported numbers come from checked repository artifacts produced by the official scorer or deterministic audit code; no result was generated or estimated by the model.
+OpenAI Codex/ChatGPT assisted with analysis, coding, testing, evaluation tooling, and documentation. The locked deterministic measurement did not call an AI model. All reported numbers come from checked repository artifacts produced by the official scorer or deterministic audit code; no result was generated or estimated by the model.
 
 ## Reproduction pointers
 
