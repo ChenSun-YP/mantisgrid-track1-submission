@@ -284,6 +284,27 @@ def generate_candidates(instruction: str, dataset: Path) -> list[Candidate]:
     return sorted(candidates, key=lambda x: (-x.score, x.component))[:10]
 
 
+def hierarchy_ordered(candidates: list[Candidate]) -> list[Candidate]:
+    """Promote a service only when at least two visible replicas agree."""
+    adjusted = []
+    for candidate in candidates:
+        score = candidate.score
+        if candidate.level == "service":
+            peers = [peer for peer in candidates
+                     if peer.level == "pod"
+                     and service_of(peer.component) == candidate.component
+                     and peer.event.kpi == candidate.event.kpi
+                     and peer.event.direction == candidate.event.direction
+                     and abs(peer.event.onset - candidate.event.onset) <= 120]
+            if len(peers) >= 2:
+                score = max(peer.score for peer in peers) * 1.10
+            elif peers:
+                score = min(score, peers[0].score * 0.90)
+        adjusted.append((score, candidate))
+    return [candidate for _, candidate in
+            sorted(adjusted, key=lambda item: (-item[0], item[1].component))]
+
+
 def _answers(candidates: list[Candidate], n: int, variant: str) -> list[dict]:
     selected: list[Candidate] = []
     used_sources: set[str] = set()
@@ -309,7 +330,7 @@ def _answers(candidates: list[Candidate], n: int, variant: str) -> list[dict]:
 
 def solve(instruction: str, dataset_dir: Path, ctx: dict, variant: str) -> Solution:
     dataset = Path(dataset_dir); n = failure_count(instruction)
-    candidates = generate_candidates(instruction, dataset)
+    candidates = hierarchy_ordered(generate_candidates(instruction, dataset))
     answers = _answers(candidates, n, variant)
     process_restart = variant == "resource_reason" and process_restart_detected(instruction, dataset)
     if process_restart and answers:

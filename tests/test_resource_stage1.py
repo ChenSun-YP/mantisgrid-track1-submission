@@ -65,6 +65,20 @@ class ResourceStage1Test(unittest.TestCase):
         with patch.object(r.b1, "_load_interval", return_value=frame):
             self.assertTrue(r.process_restart_detected(instruction, Path("/unused")))
 
+    def test_hierarchy_requires_replica_agreement(self):
+        def candidate(component, level, score, source):
+            event = r.Event(source, "container_cpu_usage_seconds",
+                            (("container CPU load", 1.0),), score, 100, 100,
+                            "increase", 1.0, 5, 1.0, 1.0, False)
+            return r.Candidate(component, level, score, event,
+                               "container CPU load", (("container CPU load", score),))
+
+        service = candidate("service", "service", 10.0, "service-0")
+        pod0 = candidate("service-0", "pod", 10.0, "service-0")
+        pod1 = candidate("service-1", "pod", 9.0, "service-1")
+        self.assertEqual(r.hierarchy_ordered([service, pod0])[0].component, "service-0")
+        self.assertEqual(r.hierarchy_ordered([service, pod0, pod1])[0].component, "service")
+
     def test_inference_module_has_no_label_input(self):
         source = Path(r.__file__).read_text()
         self.assertNotIn("scoring_points", source)
