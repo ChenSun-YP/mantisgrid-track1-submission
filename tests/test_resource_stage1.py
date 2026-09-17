@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 import pandas as pd
 
@@ -42,6 +43,27 @@ class ResourceStage1Test(unittest.TestCase):
         self.assertEqual(r.kpi_reason_weights("container_network_receive_MB.eth0", "svc-0"), ())
         reasons = {x[0] for x in r.kpi_reason_weights("system.io.r_s", "node-1")}
         self.assertEqual(reasons, {"node disk read I/O consumption"})
+
+    def test_reason_only_request_uses_query_semantics(self):
+        self.assertTrue(r.reason_only_request(
+            "A failure occurred. Please identify the root cause reason."))
+        self.assertFalse(r.reason_only_request(
+            "A failure occurred. Please identify the root cause component and reason."))
+
+    def test_start_time_change_detects_process_restart(self):
+        instruction = ("A failure occurred on March 20, 2022, from 09:00 to 09:30. "
+                       "Please identify the root cause reason.")
+        lo, _ = r.b1.parse_window(instruction)
+        timestamp = int(lo.timestamp())
+        frame = pd.DataFrame({
+            "timestamp": [timestamp, timestamp + 60],
+            "cmdb_id": ["node-1.service-0", "node-1.service-0"],
+            "kpi_name": ["container_start_time_seconds"] * 2,
+            "value": [100.0, 200.0],
+            "source": ["metric_container"] * 2,
+        })
+        with patch.object(r.b1, "_load_interval", return_value=frame):
+            self.assertTrue(r.process_restart_detected(instruction, Path("/unused")))
 
     def test_inference_module_has_no_label_input(self):
         source = Path(r.__file__).read_text()

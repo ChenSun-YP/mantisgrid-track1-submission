@@ -72,6 +72,30 @@ def service_of(component: str) -> str | None:
     return match.group("service") if match else None
 
 
+def reason_only_request(instruction: str) -> bool:
+    """Whether the final request asks for reasons without components or times."""
+    sentences = [part.strip().lower() for part in re.split(r"[.!?]+", instruction)
+                 if part.strip()]
+    request = sentences[-1] if sentences else ""
+    return ("reason" in request and "component" not in request
+            and "occurrence" not in request and "time" not in request)
+
+
+def process_restart_detected(instruction: str, dataset: Path) -> bool:
+    """Detect a container start-time reset inside a reason-only query window."""
+    if not reason_only_request(instruction):
+        return False
+    window = b1.parse_window(instruction)
+    if window is None:
+        return False
+    lo, hi = window
+    day = b1._load_interval(dataset, lo, hi)
+    state = day[day.kpi_name.eq("container_start_time_seconds")]
+    state = state[(state.timestamp >= lo.timestamp()) & (state.timestamp < hi.timestamp())]
+    return any(group.sort_values("timestamp").value.nunique() > 1
+               for _, group in state.groupby("cmdb_id"))
+
+
 def kpi_reason_weights(kpi: str, component: str) -> tuple[tuple[str, float], ...]:
     """Map observed KPI semantics to soft resource-reason evidence."""
     k = kpi.lower()
@@ -287,6 +311,9 @@ def solve(instruction: str, dataset_dir: Path, ctx: dict, variant: str) -> Solut
     dataset = Path(dataset_dir); n = failure_count(instruction)
     candidates = generate_candidates(instruction, dataset)
     answers = _answers(candidates, n, variant)
+    process_restart = variant == "resource_reason" and process_restart_detected(instruction, dataset)
+    if process_restart and answers:
+        answers[-1]["reason"] = "container process termination"
     if len(answers) != n:
         baseline = b2.solve(instruction, dataset, ctx)
         baseline.evidence += ("\n## Stage 1 fallback\n\nInsufficient persistent resource "
@@ -316,5 +343,6 @@ def solve(instruction: str, dataset_dir: Path, ctx: dict, variant: str) -> Solut
     lines += ["", "## Interpretation", "",
               "Scores are deterministic anomaly contrasts, not calibrated probabilities. "
               "The onset is the first sustained local transition for the selected KPI. "
-              "Network evidence is unavailable by design in this stage.", ""]
+              "Network evidence is unavailable by design in this stage.",
+              f"Process restart override: {'yes' if process_restart else 'no'}.", ""]
     return Solution(prediction=format_prediction(answers), evidence="\n".join(lines))
