@@ -1,4 +1,4 @@
-# MantisGrid Track 1: Deterministic Resource RCA
+# MantisGrid Track 1 RCA submission
 
 This submission diagnoses microservice incidents from container and node metrics. It
 uses persistent local change points, mixed pod/service/node candidates, UTC+8 onset
@@ -113,6 +113,12 @@ does not read development labels, answer files, evaluation artifacts, logs,
 traces, or mesh data. The resource-only scope is deliberate and explains the
 measured weakness on network failures.
 
+The final deterministic architecture is:
+
+`query → UTC+8 window parsing → rolling persistent change detection → mixed
+pod/service/node candidates → process-restart detection → hierarchy promotion →
+resource-reason scoring → local onset → contract validation → grounded evidence`.
+
 ## Run
 
 ```bash
@@ -155,9 +161,31 @@ enabled.
 Measured development results and limitations are documented in [REPORT.md](REPORT.md),
 with compact supporting artifacts under `eval/`.
 
+## Optional GLM escalation
+
+`agents.glm_escalation` is an opt-in ambiguity adjudicator and is **not** the
+default or measured configuration. It sends at most five structured, precomputed
+hypotheses and their evidence IDs to at most one GLM completion, validates that
+the response selects known hypothesis IDs with the required failure count, and
+retains the exact deterministic answer on any missing credential, API error,
+timeout, malformed response, or contract failure. It never asks the model to
+generate components, reasons, timestamps, KPIs, or telemetry values.
+
+The optional agent prefers `zai-org/GLM-5.2` and selects
+`zai-org/GLM-5.1` only when the model catalog shows that the primary is
+unavailable. It has not received a final accuracy evaluation, so no GLM score or
+promotion claim is made.
+
+```bash
+python run.py --agent agents.glm_escalation \
+  --dataset /data --queries /data/query.csv --out /out
+```
+
+Container execution was not locally verified because no runtime is installed.
+
 ## AI-use disclosure
 
 OpenAI Codex/ChatGPT assisted with telemetry analysis, deterministic implementation,
 testing, evaluation scripts, and documentation. The team selected the final method and
 validated the reported measurements with the provided official scorer. No AI model is
-called by the submitted runtime.
+called by the measured default runtime.

@@ -2,5 +2,9 @@
 .gitignore
 __pycache__/
 *.pyc
+.DS_Store
+.env
+.venv/
+out/
 eval/
 tests/

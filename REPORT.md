@@ -63,11 +63,39 @@ These are internal development results after exploratory audit, not untouched ex
 
 Each case writes the ranked mixed candidate universe with component level, deterministic score, source component, observed KPI, direction, persistence, local onset, and selected resource reason. It then records the exact emitted answer and states that scores are anomaly contrasts rather than probabilities. The evidence cites only telemetry actually read by the method. When Stage 1 cannot produce a complete valid answer, the evidence says that B2 was retained instead of fabricating support.
 
+The runtime preserves explicit `Answer`, `Confidence`, `Evidence`, and `Ruled out`
+sections for every case. A hierarchy-promoted service retains its source pod and
+event in the ranked table. A process-restart answer identifies the computed
+`container_start_time_seconds` change used by the deterministic override.
+
 For example, development row 0 ranked `shippingservice-1` first, identified a sustained transition at `2022-03-20 09:09:00` UTC+8, and emitted `container read I/O load`. The official case score was 1.0. The evidence file preserves the competing service, pod, and node candidates so the selection can be inspected rather than accepted as a black box.
 
 ## Runtime and cost design
 
-The deterministic agent is the whole submitted path, not merely an error branch. It is reproducible, made zero model calls in the measured run, and had measured model cost of $0. No runtime LLM or model-routing configuration is enabled or reported.
+The deterministic agent is the whole default path, not merely an error branch. It is reproducible, made zero model calls in the measured run, and had measured model cost of $0. No LLM or model-routing configuration is enabled in the default runtime.
+
+## Negative ablations
+
+The candidate-source experiment kept rolling generation: fixed-half scored 0.175
+and the union scored 0.281 while taking 3.37 seconds per case, so neither replaced
+the rolling path. In the earlier hierarchy experiment, reason-conditioned onset
+held the result at 0.295/12 while raising runtime to 3.15 seconds per case, and
+distinct multi-event selection reduced mean score to 0.288 without adding a strict
+solve. These negative results were not promoted.
+
+## Optional GLM-routing design
+
+An optional `agents.glm_escalation` module wraps, but does not modify, the
+deterministic solver and always preserves its answer as the fallback. It constructs
+at most five structured hypotheses from cached deterministic candidate data and
+applies configurable score/reason/hierarchy/
+multi-event ambiguity checks, and makes at most one adjudication completion. The
+model may select only supplied hypothesis and evidence IDs; all answer fields come
+from the selected precomputed hypothesis. Strict validation or any missing key,
+API failure, timeout, malformed JSON, unknown ID, or wrong count returns the exact
+deterministic prediction. The optional path is neither enabled by default nor
+accuracy-evaluated on the final harness. The measured default therefore remains
+deterministic at 0.317 mean and 14/70 strict with zero LLM calls.
 
 ## Limitations
 
@@ -77,14 +105,18 @@ The deterministic agent is the whole submitted path, not merely an error branch.
 - Timing remains weak: only 8/47 timed incidents were within 60 seconds.
 - Soft KPI-family mappings can be confounded by correlated victim signals; scores are not calibrated confidence.
 - These are internal development-set results after exploratory audit, not hidden-set performance. Development labels are incomplete and repeated windows are not independent; hidden-set generalization is unverified.
-- Docker execution was not part of the measured Stage 1 results; container verification remains a release check.
+- No final GLM-routing accuracy evaluation was run, so its generalization and cost-effectiveness are unknown.
+- Container execution not locally verified because no runtime is installed.
 
 ## AI-use disclosure
 
-OpenAI Codex (GPT-5) was used to assist with telemetry analysis, deterministic implementation, tests, evaluation scripts, and preparation of this report and demo script. The submitted runtime does not call an AI model. All reported numbers come from checked repository artifacts produced by the official scorer or deterministic audit code; no result was generated or estimated by the model.
+OpenAI Codex/ChatGPT assisted with analysis, coding, testing, evaluation tooling, and documentation. The measured default runtime does not call an AI model. All reported numbers come from checked repository artifacts produced by the official scorer or deterministic audit code; no result was generated or estimated by the model.
 
 ## Reproduction pointers
 
 - Stage 0: `eval/stage0/stage0_acceptance_report.md`
 - Stage 1: `eval/stage1/stage1_acceptance_report.md`
 - Candidate-source ablation: `eval/candidate_ablation/candidate_ablation_report.md`
+- Process restart: `eval/process_restart/process_restart_summary.md`
+- Hierarchy promotion: `eval/hierarchy/hierarchy_summary.md`
+- Final release: `eval/final/final_release_summary.md`

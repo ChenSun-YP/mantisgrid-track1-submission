@@ -48,6 +48,23 @@ class Solution:
 
 
 COUNTS = ("prompt_tokens", "completion_tokens", "calls")
+REQUIRED_EVIDENCE_SECTIONS = ("## Answer", "## Confidence", "## Evidence", "## Ruled out")
+
+
+def ensure_evidence_sections(evidence: str) -> str:
+    """Preserve agent evidence while making the human-review contract explicit."""
+    additions = []
+    defaults = {
+        "## Answer": "See the emitted prediction and preserved agent analysis above.",
+        "## Confidence": "Deterministic anomaly scores are not calibrated probabilities.",
+        "## Evidence": "See the preserved ranked telemetry evidence above.",
+        "## Ruled out": "Lower-ranked alternatives were not selected; no causal exclusion is claimed.",
+    }
+    for heading in REQUIRED_EVIDENCE_SECTIONS:
+        if heading not in evidence:
+            additions.extend([heading, "", defaults[heading], ""])
+    suffix = "\n".join(additions)
+    return evidence.rstrip() + ("\n\n" + suffix if suffix else "\n")
 
 
 def per_model(usage: dict) -> dict:
@@ -123,7 +140,8 @@ def main() -> None:
                            + traceback.format_exc() + "```")
         wall = time.time() - t0
 
-        (out / "evidence" / f"{rid}.md").write_text(sol.evidence or "_no evidence_\n")
+        evidence = ensure_evidence_sections(sol.evidence or "_no evidence_\n")
+        (out / "evidence" / f"{rid}.md").write_text(evidence)
         models = per_model(sol.usage or {})
         rec = {"row_id": rid, "prediction": sol.prediction,
                "task_index": getattr(r, "task_index", ""), "wall_s": round(wall, 2),

@@ -365,5 +365,8 @@ def solve(instruction: str, dataset_dir: Path, ctx: dict, variant: str) -> Solut
               "Scores are deterministic anomaly contrasts, not calibrated probabilities. "
               "The onset is the first sustained local transition for the selected KPI. "
               "Network evidence is unavailable by design in this stage.",
-              f"Process restart override: {'yes' if process_restart else 'no'}.", ""]
+              f"Process restart override: {'yes' if process_restart else 'no'}. "
+              + ("Supporting metric: `container_start_time_seconds` changed inside the "
+                 "query window." if process_restart else
+                 "No in-window process-start metric change was used."), ""]
     return Solution(prediction=format_prediction(answers), evidence="\n".join(lines))
