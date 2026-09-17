@@ -18,6 +18,26 @@ These are development-set measurements, not hidden-evaluation estimates.
 | + local-onset timestamps | 0.239 | 6/70 | 0 |
 | **+ resource-reason scoring (shipped)** | **0.287** | **11/70** | **0** |
 
+### What each configuration adds
+
+- **B0 — original heuristic:** ranks components by their largest robust metric
+  anomaly, maps the winning KPI to a reason, and reports that KPI's peak time. Its
+  UTC parsing error caused 24 empty answers.
+- **B2 — UTC+8 and contract safety:** reads query windows in the telemetry's UTC+8
+  timebase, validates failure count, field order, component, and reason, and emits a
+  legal best guess when the baseline cannot form a complete answer.
+- **Rolling change-point ranking:** detects persistent local changes and ranks a
+  mixed candidate set containing exact pods, logical services, and nodes instead of
+  relying only on the largest whole-window anomaly.
+- **Local-onset timestamps:** dates each selected failure at the first sustained
+  local transition rather than at the later peak of the affected metric.
+- **Resource-reason scoring — shipped:** combines evidence across related KPI
+  families to select the legal CPU, memory, disk, or I/O reason instead of using a
+  single KPI keyword match.
+
+Each row in the table is cumulative: it adds the named change to the configuration
+above it.
+
 The shipped run averaged **1.61 seconds per case**, peaked at 7.93 seconds,
 and made **zero model calls**, for measured model cost of **$0**. Candidate-source
 ablation kept the rolling method: fixed-half scored 0.175 and the union scored
